@@ -17,3 +17,53 @@ from simhash import Simhash
 
     输出结果：论文的重复率
 """
+def short_analyse(o_file, c_file):
+    """
+    思路：
+        我们首先读取数据然后对数据进行一个jieba分词，同时根据正则匹配来过滤掉标点
+    :param o_file: 原始论文的地址
+    :param c_file: 抄袭论文的地址
+    :return: 返回两个分词结果的列表
+    """
+    jieba.setLogLevel(jieba.logging.INFO)  # 使用中文词库来进行分词，防止报错
+    o_list = []
+    c_list = []
+    try:
+        with open(o_file, 'r', encoding='utf-8') as f:
+            o_lines = f.readlines()
+        for line in o_lines:
+            pattern = re.compile(u"[^a-zA-Z0-9\u4e00-\u9fa5]")  # 正则匹配保留中文字符
+            target = pattern.sub("", line)
+            for data in jieba.lcut(target):
+                o_list.append(data)
+    except FileNotFoundError:
+        print(f"{o_file}这个路径下没有文件")
+        raise FileNotFoundError
+
+    try:
+        with open(c_file, 'r', encoding='utf-8') as f:
+            c_lines = f.readlines()
+        for line in c_lines:
+            pattern = re.compile(u"[^a-zA-Z0-9\u4e00-\u9fa5]")  # 正则匹配保留中文字符
+            target = pattern.sub("", line)
+            for data in jieba.lcut(target):
+                c_list.append(data)
+
+    except FileNotFoundError:
+        print(f"{c_file}这个路径下没有文件")
+        raise FileNotFoundError
+
+    all_words = list(set(o_list).union(set(c_list)))
+    print(all_words)
+    la = []
+    lb = []
+    # 转换为向量的形式
+    for word in all_words:
+        la.append(o_list.count(word))
+        lb.append(c_list.count(word))
+
+    # 计算余弦相似度
+    laa = numpy.array(la)
+    lbb = numpy.array(lb)
+    cos = (numpy.dot(laa, lbb.T)) / ((math.sqrt(numpy.dot(laa, laa.T))) * (math.sqrt(numpy.dot(lbb, lbb.T))))
+    print(f"两篇文章的相似度为{cos}")
