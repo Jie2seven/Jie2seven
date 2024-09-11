@@ -67,3 +67,26 @@ def short_analyse(o_file, c_file):
     lbb = numpy.array(lb)
     cos = (numpy.dot(laa, lbb.T)) / ((math.sqrt(numpy.dot(laa, laa.T))) * (math.sqrt(numpy.dot(lbb, lbb.T))))
     print(f"两篇文章的相似度为{cos}")
+def long_analyse(fname):
+    try:
+        with open(fname, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        print(f"{fname}这个路径下并不存在文件")
+
+    tags = jieba.analyse.extract_tags(content, 15)
+    print(tags)
+    return tags
+
+
+def compute_sim(o_file, c_file):
+    i = set(o_file).intersection(set(c_file))
+    j = set(o_file).union((set(c_file)))
+    return round(len(i) / len(j), 2)
+
+
+def long_ans(o_file, c_file):
+    a1 = long_analyse(o_file)
+    a2 = long_analyse(c_file)
+    return compute_sim(a1, a2)
+
