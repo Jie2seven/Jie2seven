@@ -90,3 +90,56 @@ def long_ans(o_file, c_file):
     a2 = long_analyse(c_file)
     return compute_sim(a1, a2)
 
+def save_data(a_file, cos):
+    """
+
+    :param a_file: 答案文件的路径
+    :return:
+    """
+    try:
+        with open(a_file, 'w', encoding='utf-8') as f:
+            f.write(f"这篇文章的抄袭率为{cos}")
+    except FileNotFoundError:
+        print(f"{a_file}这个路径下没有文件")
+
+
+def simhash_demo(text_a, text_b):
+    """
+    求两文本的相似度
+
+    :param text_a:
+    :param text_b:
+    :return:
+    """
+    try:
+        with open(text_a, 'r', encoding='utf-8') as f:
+            content_a = f.read()
+
+    except FileNotFoundError:
+        print(f"{text_a}这个路径下文件不存在")
+        raise FileNotFoundError
+
+    try:
+        with open(text_b, 'r', encoding='utf-8') as f:
+            content_b = f.read()
+
+    except FileNotFoundError:
+        print(f"{text_a}这个路径下文件不存在")
+        raise FileNotFoundError
+
+    a_simhash = Simhash(content_a)
+    b_simhash = Simhash(content_b)
+    max_hashbit = max(len(bin(a_simhash.value)), len(bin(b_simhash.value)))
+    # 汉明距离
+    distince = a_simhash.distance(b_simhash)
+    # print(distince)
+    similar = 1 - distince / max_hashbit
+    return similar
+
+
+if __name__ == '__main__':
+    o_file = ".\o_file "
+    c_file = ".\c_file "
+    short_analyse(o_file, c_file)
+    print(f"两个文本之间的相似度为{long_ans(o_file, c_file)}")
+    print(f"利用simhash求得相似度{simhash_demo(o_file, c_file)}")
